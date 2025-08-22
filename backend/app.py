@@ -117,14 +117,8 @@ async def authorize(request: Request, redirect_uri: Optional[str] = None):
     if redirect_uri:
         request.session["post_login_redirect"] = redirect_uri
     callback_url = request.url_for("auth_callback")
-    # Align callback host with redirect_uri host (localhost vs 127.0.0.1) to keep cookie host consistent
-    if redirect_uri:
-        try:
-            host = urlparse(redirect_uri).hostname
-            if host in {"localhost", "127.0.0.1"}:
-                callback_url = str(callback_url).replace("127.0.0.1", host)
-        except Exception:
-            pass
+    # Keep callback as 127.0.0.1 to match Google Console registration
+    # Session cookie will be set for 127.0.0.1, so frontend must also use 127.0.0.1
     logger.info(f"/authorize redirect_uri=%s callback_url=%s", redirect_uri, str(callback_url))
     return await oauth.google.authorize_redirect(request, callback_url)
 
@@ -154,6 +148,9 @@ async def auth_callback(request: Request):
         return RedirectResponse(url=(request.session.pop("post_login_redirect", None) or allowed_origins[0]) + "/login?error=oauth_failed")
 
     redirect_to = request.session.pop("post_login_redirect", None) or allowed_origins[0] + "/dashboard"
+    # Replace localhost with 127.0.0.1 in redirect to match backend host for cookie consistency
+    if redirect_to and "localhost:" in redirect_to:
+        redirect_to = redirect_to.replace("localhost:", "127.0.0.1:")
     return RedirectResponse(url=redirect_to)
 
 
