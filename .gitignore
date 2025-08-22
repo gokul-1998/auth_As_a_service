@@ -1,2 +1,12 @@
 env
 *.pyc
+
+# Node/Next.js
+node_modules/
+.next/
+.env.local
+.env*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

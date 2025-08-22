@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
+from typing import Optional
 
 SECRET_KEY = "supersecret"
 ALGORITHM = "HS256"
@@ -41,3 +42,9 @@ def get_me(token: str):
         return {"user": payload["sub"]}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+@app.post("/auth/logout")
+def logout(token: Optional[str] = None):
+    # In this simple demo, access tokens are stateless JWTs, so there's nothing to revoke server-side.
+    # In a real system, you would invalidate a refresh token in your DB/Redis here.
+    return {"success": True}
