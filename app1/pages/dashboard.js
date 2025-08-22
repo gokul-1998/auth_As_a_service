@@ -1,7 +1,7 @@
 export async function getServerSideProps({ req }) {
   // Fetch user via our API proxy which reads the HttpOnly cookie
-  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const res = await fetch(base + "/api/me", {
+  // Use a relative URL so the request always targets the current app instance
+  const res = await fetch("http://" + req.headers.host + "/api/me", {
     headers: { cookie: req.headers.cookie || "" },
   });
 
